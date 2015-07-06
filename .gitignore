@@ -1,12 +1,205 @@
-*.class
+Classe DU join
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+package fr.sky.wars.events;
 
-# Package Files #
-*.jar
-*.war
-*.ear
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+
+import fr.sky.wars.ChatUtils;
+import fr.sky.wars.SkyWars;
+
+public class Playerjoin implements Listener {
+	
+	static int task;
+    static int countdown = 31;
+	
+	@EventHandler
+	public void onplayerjoin(PlayerJoinEvent e){
+		Player p = e.getPlayer();
+		int playercount = Bukkit.getServer().getOnlinePlayers().size();
+		p.setGameMode(GameMode.ADVENTURE);
+		p.getInventory().clear();
+	
+		
+		Bukkit.broadcastMessage(ChatUtils.getGamePrefix()+p.getName()+" a rejoint la partie "+ChatColor.GRAY+"["+playercount+"/8]");
+        
+		
+		
+		
+		if(playercount == 2){
+		    task = Bukkit.getScheduler().scheduleSyncRepeatingTask(Bukkit.getPluginManager().getPlugin("sky"), new Runnable(){
+
+				@Override
+				public void run() {
+					countdown--;
+					if((countdown <= 2 && countdown   !=0) || countdown == 30){
+						Bukkit.broadcastMessage(ChatUtils.getGamePrefix()+"la partie commence dans"+countdown+" secondes");
+						
+					} else {
+					
+					if(countdown == 0){
+						Bukkit.getScheduler().cancelTask(task);
+						p.sendMessage(ChatUtils.getGamePrefix()+"C'est parti bonne chance");
+						SkyWars.start(); 
+					}
+					}
+				
+		
+				} 
+		    		
+		    		
+		}, 20, 20);
+		    }
+		
+	
+	
+
+
+			
+		if(playercount == 2){
+			countdown = 10;
+		}
+
+
+
+		if(playercount < 2){
+			int joueursManquant = 2 - playercount;
+			for(Player pls : Bukkit.getOnlinePlayers()){
+			pls.sendMessage(ChatUtils.getGamePrefix()+"Il manque encore "+joueursManquant+" joueurs pour lancer la partie ! ");
+			}
+		}
+	}
+}
+			
+			
+		
+		Classe du QUIT
+		
+		
+		
+		
+		
+		package fr.sky.wars.events;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
+
+import fr.sky.wars.ChatUtils;
+
+public class PlayerQuit implements Listener {
+	
+	@EventHandler
+	public void onPlayerQuit(PlayerQuitEvent e){
+		Player p = e.getPlayer();
+		int playercount = Bukkit.getServer().getOnlinePlayers().size();
+		Bukkit.broadcastMessage(ChatUtils.getGamePrefix()+p.getName()+" a quitter la partie "+ChatColor.GRAY+"["+playercount+"/8]");
+        
+		if(playercount < 2){
+			Bukkit.getScheduler().cancelTask(Playerjoin.task);
+			Playerjoin.countdown = 31;
+			p.sendMessage(ChatUtils.getGamePrefix()+"Il y a moin de 10 joueurs , le décompte s'arrête");
+		}
+}
+}
+
+
+
+
+
+
+
+
+
+Classe principal
+
+
+
+
+
+
+
+package fr.sky.wars;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
+
+
+
+
+
+
+
+
+
+import fr.sky.wars.events.EventsManager;
+
+public class SkyWars extends JavaPlugin implements Listener{
+	
+	
+	public void onEnable(){
+		EventsManager.registerEvents(this);
+		
+		ArrayList<Location> locs = new ArrayList<Location>();
+		locs.add(new Location(Bukkit.getWorlds().get(0), 74, 207, 75));
+		locs.add(new Location(Bukkit.getWorlds().get(0), 97, 207, 65));
+		locs.add(new Location(Bukkit.getWorlds().get(0), 120, 207, 75));
+		locs.add(new Location(Bukkit.getWorlds().get(0), 130, 207, 98));
+		locs.add(new Location(Bukkit.getWorlds().get(0), 121, 207, 119));
+		locs.add(new Location(Bukkit.getWorlds().get(0), 97, 207, 131));
+		locs.add(new Location(Bukkit.getWorlds().get(0), 74, 207, 121));
+		locs.add(new Location(Bukkit.getWorlds().get(0), 64, 207, 98));
+	
+		Random ran = new Random();
+		for(Player pls : Bukkit.getOnlinePlayers()){
+			Location randomLoc = locs.get(ran.nextInt(locs.size()+1));
+			pls.teleport(randomLoc);
+			locs.remove(randomLoc);
+			
+		}
+		}
+			
+
+	public static void stop(){
+		
+	}
+
+
+	public static void start() {
+		
+		
+	}
+	}
+	
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+			
+
+
